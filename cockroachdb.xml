@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE DatabaseProfile SYSTEM "dbvis-defs.dtd">
+<DatabaseProfile desc="Profile for CockroachDB" minver="10" extends="generic">
+  <InitCommands extends="false">
+    <Command id="cockroachdb.getVersion">
+      <SQL>
+        <![CDATA[
+show cluster setting version;
+         ]]>
+      </SQL>
+      <Output index="1" name="VERSION" />
+    </Command>
+    <Command id="cockroachdb.getDatabase">
+      <SQL>
+        <![CDATA[
+show database;
+         ]]>
+      </SQL>
+      <Output index="1" name="DATABASE" />
+    </Command>
+  </InitCommands>
+  <Commands extends="false">
+    <Command id="cockroachdb.getSchemaNames">
+      <SQL>
+        <![CDATA[
+select schema_name, catalog_name from information_schema.schemata;
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getVirtualSchemas">
+      <SQL>
+        <![CDATA[
+select * from information_schema.schemata where catalog_name = '${database}' and schema_name != 'public';
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getVirtualSchema">
+      <SQL>
+        <![CDATA[
+select * from information_schema.schemata where catalog_name = '${database}' and schema_name = '${schema_name}';
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getDatabases">
+      <SQL>
+        <![CDATA[
+show databases;
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getTables">
+      <SQL>
+        <![CDATA[
+select * from information_schema.tables where table_catalog='${database}' and table_type='BASE TABLE';
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getTableColumns">
+      <SQL>
+        <![CDATA[
+show columns from ${database}.${table};
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getTableSource">
+      <SQL>
+        <![CDATA[
+show create table ${database}.${table};
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getIndexes">
+      <SQL>
+        <![CDATA[
+show indexes from ${database}.${table};
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getViews">
+      <SQL>
+        <![CDATA[
+select * from information_schema.tables where table_catalog='${database}' and table_type = 'VIEW';
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getViewSource">
+      <SQL>
+        <![CDATA[
+show create view "${database}"."${view}";
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getSystemViews">
+      <SQL>
+        <![CDATA[
+select * from information_schema.tables where table_catalog='${database}' and table_schema='${schema_name}' and table_type like 'SYSTEM VIEW';
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getSequences">
+      <SQL>
+        <![CDATA[
+select * from information_schema.sequences where sequence_catalog='${database}';
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getSequenceSource">
+      <SQL>
+        <![CDATA[
+show create sequence "${database}"."${sequence}";
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getData">
+      <SQL>
+        <![CDATA[
+select * from "${database}"."${object}";
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getVirtualSchemaData">
+      <SQL>
+        <![CDATA[
+select * from "${schema}"."${object}";
+         ]]>
+      </SQL>
+    </Command>
+  </Commands>
+  <ObjectsActionDef extends="false"></ObjectsActionDef>
+  <ObjectsTreeDef extends="false">
+    <GroupNode type="Databases" label="Databases">
+      <DataNode type="Database" label="${cockroachdb.getDatabases.Database}">
+        <SetVar name="database" value="${cockroachdb.getDatabases.Database}"/>
+        <Command idref="cockroachdb.getDatabases">
+          <Filter index="OBJECT_CAT" label="Name"/>
+        </Command>
+        <GroupNode type="VirtualSchemas" label="Virtual Schemas" icon="Schema">
+          <DataNode type="VirtualSchema" label="${cockroachdb.getVirtualSchemas.schema_name}" icon="Schema" isLeaf="false">
+            <SetVar name="schema_name" value="${cockroachdb.getVirtualSchemas.schema_name}"/>
+            <Command idref="cockroachdb.getVirtualSchemas">
+              <Input name="database" value="${database}"/>
+            </Command>
+            <GroupNode type="SystemViews" label="System Views" icon="view" isLeaf="false">
+              <DataNode type="SystemView" label="${cockroachdb.getSystemViews.table_name}" icon="Views" isLeaf="true">
+                <SetVar name="system_view" value="${cockroachdb.getSystemViews.table_name}"/>
+                <Command idref="cockroachdb.getSystemViews">
+                  <Input name="database" value="${database}"/>
+                  <Input name="schema_name" value="${schema_name}"/>
+                </Command>
+              </DataNode>
+            </GroupNode>
+          </DataNode>
+        </GroupNode>
+        <GroupNode type="Sequences" label="Sequences">
+          <DataNode type="Sequence" label="${cockroachdb.getSequences.sequence_name}" isLeaf="true">
+            <SetVar name="sequence" value="${cockroachdb.getSequences.sequence_name}"/>
+            <Command idref="cockroachdb.getSequences">
+              <Input name="database" value="${database}"/>
+            </Command>
+          </DataNode>
+        </GroupNode>
+        <GroupNode type="Tables" label="Tables">
+          <DataNode type="Table" label="${cockroachdb.getTables.table_name}" isLeaf="false">
+            <SetVar name="table" value="${cockroachdb.getTables.table_name}"/>
+            <Command idref="cockroachdb.getTables">
+              <Input name="database" value="${database}"/>
+            </Command>
+            <GroupNode type="Columns" label="Columns">
+              <DataNode type="Column" label="${cockroachdb.getTableColumns.Field} (${cockroachdb.getTableColumns.Type})" isLeaf="true">
+                <SetVar name="column" value="${cockroachdb.getTableColumns.Field}"/>
+                <Command idref="cockroachdb.getTableColumns">
+                  <Input name="database" value="${database}"/>
+                  <Input name="table" value="${table}"/>
+                  <Filter index="COLUMN_NAME" label="Name"/>
+                </Command>
+              </DataNode>
+            </GroupNode>
+            <GroupNode type="Indexes" label="Indexes">
+              <DataNode type="Index" label="${cockroachdb.getIndexes.Name}" isLeaf="true">
+                <SetVar name="index" value="${cockroachdb.getIndexes.Name}"/>
+                <Command idref="cockroachdb.getIndexes">
+                  <Input name="database" value="${database}"/>
+                  <Input name="table" value="${table}"/>
+                  <Filter index="INDEX_NAME" label="Name"/>
+                </Command>
+              </DataNode>
+            </GroupNode>
+          </DataNode>
+        </GroupNode>
+        <GroupNode type="Views" label="Views">
+          <DataNode type="View" label="${cockroachdb.getViews.table_name}" isLeaf="true">
+            <SetVar name="view" value="${cockroachdb.getViews.table_name}"/>
+            <SetVar name="table_type" value="${cockroachdb.getViews.table_type}"/>
+            <Command idref="cockroachdb.getViews">
+              <Input name="database" value="${database}"/>
+            </Command>
+          </DataNode>
+        </GroupNode>
+      </DataNode>
+    </GroupNode>
+  </ObjectsTreeDef>
+  <ObjectsViewDef extends="false">
+    <ObjectView type="Catalogs">
+      <DataView id="cockroachdb-databases" icon="Catalogs" label="Databases" viewer="grid">
+        <Command idref="cockroachdb.getDatabases"/>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="Sequences">
+      <DataView id="cockroachdb-sequences" icon="Sequences" label="Sequences" viewer="grid">
+        <Command idref="cockroachdb.getSequences">
+          <Input name="database" value="${database}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="Sequence">
+      <DataView id="cockroachdb-sequence-info" icon="Info" label="Info" viewer="node-form"/>
+      <DataView id="cockroachdb-sequence-source" icon="Source" label="Source" viewer="text">
+        <Input name="dataColumn" value="CreateSequence"/>
+        <Input name="formatSQL" value="true"/>
+        <Command idref="cockroachdb.getSequenceSource">
+          <Input name="database" value="${database}"/>
+          <Input name="sequence" value="${sequence}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="Tables">
+      <DataView id="cockroachdb-tables" icon="Tables" label="Tables" viewer="grid">
+        <Command idref="cockroachdb.getTables">
+          <Input name="database" value="${database}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="Table">
+      <DataView id="cockroachdb-table-info" icon="Info" label="Info" viewer="node-form"/>
+      <DataView type="cockroachdb-table-data" icon="Data" label="Data" viewer="grid">
+        <Command idref="cockroachdb.getData">
+          <Input name="database" value="${database}"/>
+          <Input name="object" value="${table}"/>
+        </Command>
+      </DataView>
+      <DataView id="cockroachdb-table-source" icon="Source" label="Source" viewer="text">
+        <Input name="dataColumn" value="CreateTable"/>
+        <Input name="formatSQL" value="true"/>
+        <Command idref="cockroachdb.getTableSource">
+          <Input name="database" value="${database}"/>
+          <Input name="table" value="${table}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="Columns">
+      <DataView id="cockroachdb-columns" icon="Columns" label="Columns" viewer="grid">
+        <Command idref="cockroachdb.getTableColumns">
+          <Input name="database" value="${database}"/>
+          <Input name="table" value="${table}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="Indexes">
+      <DataView id="cockroachdb-indexes" icon="Indexes" label="Indexes" viewer="grid">
+        <Command idref="cockroachdb.getIndexes">
+          <Input name="database" value="${database}"/>
+          <Input name="table" value="${table}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="Views">
+      <DataView id="cockroachdb-views" icon="Views" label="Views" viewer="grid">
+        <Command idref="cockroachdb.getViews">
+          <Input name="database" value="${database}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="View">
+      <DataView id="cockroachdb-view-info" icon="Info" label="Info" viewer="node-form"/>
+      <DataView type="cockroachdb-view-data" icon="Data" label="Data" viewer="grid">
+        <Command idref="cockroachdb.getData">
+          <Input name="database" value="${database}"/>
+          <Input name="object" value="${view}"/>
+        </Command>
+      </DataView>
+      <DataView id="cockroachdb-view-source" icon="Source" label="Source" viewer="text">
+        <Input name="dataColumn" value="CreateView"/>
+        <Input name="formatSQL" value="true"/>
+        <Command idref="cockroachdb.getViewSource">
+          <Input name="database" value="${database}"/>
+          <Input name="view" value="${view}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="VirtualSchemas">
+      <DataView id="cockroachdb-virtual-schemas" icon="Schema" label="Virtual Schemas" viewer="grid">
+        <Command idref="cockroachdb.getVirtualSchemas">
+          <Input name="database" value="${database}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="VirtualSchema">
+      <DataView id="cockroachdb-virtual-schema" icon="Schema" label="Virtual Schema" viewer="grid">
+        <Command idref="cockroachdb.getVirtualSchema">
+          <Input name="database" value="${database}"/>
+          <Input name="schema_name" value="${schema_name}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="SystemViews">
+      <DataView id="cockroachdb-system-views" icon="Views" label="Views" viewer="grid">
+        <Command idref="cockroachdb.getSystemViews">
+          <Input name="database" value="${database}"/>
+          <Input name="schema_name" value="${schema_name}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+    <ObjectView type="SystemView">
+      <DataView id="cockroachdb-systemview-info" icon="Info" label="Info" viewer="node-form"/>
+      <DataView type="cockroachdb-systemview-data" icon="Data" label="Data" viewer="grid">
+        <Command idref="cockroachdb.getVirtualSchemaData">
+          <Input name="schema" value="${schema_name}"/>
+          <Input name="object" value="${system_view}"/>
+        </Command>
+      </DataView>
+    </ObjectView>
+  </ObjectsViewDef>
+</DatabaseProfile>
