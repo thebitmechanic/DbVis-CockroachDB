@@ -5,7 +5,7 @@
     <Command id="cockroachdb.getVersion">
       <SQL>
         <![CDATA[
-show cluster setting version;
+select substr(value, 2, 1) version from crdb_internal.node_build_info where field = 'Version';
          ]]>
       </SQL>
       <Output index="1" name="VERSION" />
