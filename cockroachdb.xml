@@ -51,7 +51,7 @@ show databases;
     <Command id="cockroachdb.getTables">
       <SQL>
         <![CDATA[
-select * from information_schema.tables where table_catalog='${database}' and table_type='BASE TABLE';
+select * from information_schema.tables where table_catalog='${database}' and table_type='BASE TABLE' order by table_name asc;
          ]]>
       </SQL>
     </Command>
@@ -79,7 +79,7 @@ show indexes from ${database}.${table};
     <Command id="cockroachdb.getViews">
       <SQL>
         <![CDATA[
-select * from information_schema.tables where table_catalog='${database}' and table_type = 'VIEW';
+select * from information_schema.tables where table_catalog='${database}' and table_type = 'VIEW' order by table_name asc;
          ]]>
       </SQL>
     </Command>
@@ -93,14 +93,21 @@ show create view "${database}"."${view}";
     <Command id="cockroachdb.getSystemViews">
       <SQL>
         <![CDATA[
-select * from information_schema.tables where table_catalog='${database}' and table_schema='${schema_name}' and table_type like 'SYSTEM VIEW';
+select * from information_schema.tables where table_catalog='${database}' and table_schema='${schema_name}' and table_type like 'SYSTEM VIEW' order by table_name asc;
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getSequences">
       <SQL>
         <![CDATA[
-select * from information_schema.sequences where sequence_catalog='${database}';
+select * from information_schema.sequences where sequence_catalog='${database}' order by sequence_name asc;
+         ]]>
+      </SQL>
+    </Command>
+    <Command id="cockroachdb.getSequence">
+      <SQL>
+        <![CDATA[
+select * from information_schema.sequences where sequence_catalog='${database}' and sequence_name='${sequence}';
          ]]>
       </SQL>
     </Command>
@@ -126,7 +133,103 @@ select * from "${schema}"."${object}";
       </SQL>
     </Command>
   </Commands>
-  <ObjectsActionDef extends="false"></ObjectsActionDef>
+  <ObjectsActionDef extends="false">
+    <ActionGroup type="Sequences">
+      <Action id="cockroach-sequences-create" label="Create Sequence" reload="true" icon="add">
+        <Input label="Sequence Name" name="seq_name" style="text"/>
+        <Input label="Increment" name="increment" style="number">
+          <Default>1</Default>
+        </Input>
+        <Input label="Minimum Value" name="minvalue" style="number">
+          <Default>1</Default>
+        </Input>
+        <Input label="Maximum Value" name="maxvalue" style="number">
+          <Default>0</Default>
+        </Input>
+        <Input label="Start" name="start" style="number">
+          <Default>1</Default>
+        </Input>
+        <SetVar name="_maxvalue" value="#maxvalue != 0 ? ' maxvalue ' + #maxvalue : ''"/>
+        <Command>
+          <SQL>
+            <![CDATA[create sequence "${database}"."${seq_name}" increment ${increment} minvalue ${minvalue} start ${start}${_maxvalue};]]>
+          </SQL>
+        </Command>
+        <Result>${seq_name} created!</Result>
+      </Action>
+    </ActionGroup>
+    <ActionGroup type="Sequence">
+      <Action id="cockroach-sequences-alter" label="Alter Sequence" reload="true" icon="alter">
+        <Input label="Sequence" style="text" editable="false">
+          <Default>${sequence}</Default>
+        </Input>
+        <Input label="Increment" name="increment" style="number">
+          <Default column="increment">
+            <Command idref="cockroachdb.getSequence">
+              <Input name="database" value="${database}"/>
+              <Input name="sequence" value="${sequence}"/>
+            </Command>
+          </Default>
+        </Input>
+        <Input label="Minimum Value" name="minvalue" style="number">
+          <Default column="minimum_value">
+            <Command idref="cockroachdb.getSequence">
+              <Input name="database" value="${database}"/>
+              <Input name="sequence" value="${sequence}"/>
+            </Command>
+          </Default>
+        </Input>
+        <Input label="Maximum Value" name="maxvalue" style="number">
+          <Default column="maximum_value">
+            <Command idref="cockroachdb.getSequence">
+              <Input name="database" value="${database}"/>
+              <Input name="sequence" value="${sequence}"/>
+            </Command>
+          </Default>
+        </Input>
+        <Input label="Start" name="start" style="number">
+           <Default column="start_value">
+            <Command idref="cockroachdb.getSequence">
+              <Input name="database" value="${database}"/>
+              <Input name="sequence" value="${sequence}"/>
+            </Command>
+          </Default>
+        </Input>
+        <SetVar name="_maxvalue" value="#maxvalue != 0 ? ' maxvalue ' + #maxvalue : ''"/>
+        <Command>
+          <SQL>
+            <![CDATA[alter sequence "${database}"."${sequence}" increment ${increment} minvalue ${minvalue} start ${start}${_maxvalue}${_no_cycle};]]>
+          </SQL>
+        </Command>
+        <Result>${seq_name} altered!</Result>
+      </Action>
+      <Action id="cockroach-sequence-drop" label="Drop Sequence" reload="true" icon="remove">
+        <Input label="Sequence" style="text" editable="false">
+          <Default>${sequence}</Default>
+        </Input>
+        <Command>
+          <SQL>
+            <![CDATA[drop sequence "${database}"."${sequence}";]]>
+          </SQL>
+        </Command>
+        <Confirm>Really drop sequence ${seq_name}?</Confirm>
+        <Result>${seq_name} dropped!</Result>
+      </Action>
+      <Action id="cockroach-sequence-rename" label="Rename Sequence" reload="true" icon="rename">
+        <Input label="Sequence" style="text" editable="false">
+          <Default>${sequence}</Default>
+        </Input>
+        <Input label="Sequence Name" name="new_name" style="text"/>
+        <Command>
+          <SQL>
+            <![CDATA[alter sequence "${database}"."${sequence}" rename to "${database}"."${new_name}";]]>
+          </SQL>
+        </Command>
+        <Confirm>Really rename sequence ${seq_name}?</Confirm>
+        <Result>${seq_name} renamed!</Result>
+      </Action>
+    </ActionGroup>
+  </ObjectsActionDef>
   <ObjectsTreeDef extends="false">
     <GroupNode type="Databases" label="Databases">
       <DataNode type="Database" label="${cockroachdb.getDatabases.Database}">
