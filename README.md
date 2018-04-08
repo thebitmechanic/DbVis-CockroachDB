@@ -5,11 +5,12 @@ DbVis Database Profile for CockroachDB
 
 Features
 ============
-The profile currently only supports read only features.  There are no actions in the profile yet.
+The profile currently only supports mostly read only features.
 
 - Database listing.
 - Each database lists it's virtual schemas and their underlying system views.
 - Sequence listing.  View information about the sequence and see its source.
+- Sequence actions.  Create, alter, drop, and rename sequences.
 - Table listing.  View columns, indexes, data, and source.
 - View listing.  View data and source.
 
