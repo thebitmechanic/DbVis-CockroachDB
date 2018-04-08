@@ -5,7 +5,7 @@ DbVis Database Profile for CockroachDB
 
 Features
 ============
-The profile currently only supports mostly read only features.
+The profile currently mostly read only features.
 
 - Database listing.
 - Each database lists it's virtual schemas and their underlying system views.
