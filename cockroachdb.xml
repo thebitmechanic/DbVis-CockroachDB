@@ -137,22 +137,21 @@ select * from "${schema}"."${object}";
     <ActionGroup type="Sequences">
       <Action id="cockroach-sequences-create" label="Create Sequence" reload="true" icon="add">
         <Input label="Sequence Name" name="seq_name" style="text"/>
-        <Input label="Increment" name="increment" style="number">
+        <Input label="Increment" name="increment" style="text">
           <Default>1</Default>
         </Input>
-        <Input label="Minimum Value" name="minvalue" style="number">
+        <Input label="Minimum Value" name="minvalue" style="text">
           <Default>1</Default>
         </Input>
-        <Input label="Maximum Value" name="maxvalue" style="number">
-          <Default>0</Default>
+        <Input label="Maximum Value" name="maxvalue" style="text">
+          <Default>9223372036854775807</Default>
         </Input>
-        <Input label="Start" name="start" style="number">
+        <Input label="Start" name="start" style="text">
           <Default>1</Default>
         </Input>
-        <SetVar name="_maxvalue" value="#maxvalue != 0 ? ' maxvalue ' + #maxvalue : ''"/>
         <Command>
           <SQL>
-            <![CDATA[create sequence "${database}"."${seq_name}" increment ${increment} minvalue ${minvalue} start ${start}${_maxvalue};]]>
+            <![CDATA[create sequence "${database}"."${seq_name}" increment ${increment} minvalue ${minvalue} start ${start} maxvalue ${maxvalue};]]>
           </SQL>
         </Command>
         <Result>${seq_name} created!</Result>
@@ -163,7 +162,7 @@ select * from "${schema}"."${object}";
         <Input label="Sequence" style="text" editable="false">
           <Default>${sequence}</Default>
         </Input>
-        <Input label="Increment" name="increment" style="number">
+        <Input label="Increment" name="increment" style="text">
           <Default column="increment">
             <Command idref="cockroachdb.getSequence">
               <Input name="database" value="${database}"/>
@@ -171,7 +170,7 @@ select * from "${schema}"."${object}";
             </Command>
           </Default>
         </Input>
-        <Input label="Minimum Value" name="minvalue" style="number">
+        <Input label="Minimum Value" name="minvalue" style="text">
           <Default column="minimum_value">
             <Command idref="cockroachdb.getSequence">
               <Input name="database" value="${database}"/>
@@ -179,7 +178,7 @@ select * from "${schema}"."${object}";
             </Command>
           </Default>
         </Input>
-        <Input label="Maximum Value" name="maxvalue" style="number">
+        <Input label="Maximum Value" name="maxvalue" style="text">
           <Default column="maximum_value">
             <Command idref="cockroachdb.getSequence">
               <Input name="database" value="${database}"/>
@@ -187,18 +186,17 @@ select * from "${schema}"."${object}";
             </Command>
           </Default>
         </Input>
-        <Input label="Start" name="start" style="number">
-           <Default column="start_value">
+        <Input label="Start" name="start" style="text">
+          <Default column="start_value">
             <Command idref="cockroachdb.getSequence">
               <Input name="database" value="${database}"/>
               <Input name="sequence" value="${sequence}"/>
             </Command>
           </Default>
         </Input>
-        <SetVar name="_maxvalue" value="#maxvalue != 0 ? ' maxvalue ' + #maxvalue : ''"/>
         <Command>
           <SQL>
-            <![CDATA[alter sequence "${database}"."${sequence}" increment ${increment} minvalue ${minvalue} start ${start}${_maxvalue}${_no_cycle};]]>
+            <![CDATA[alter sequence "${database}"."${sequence}" increment ${increment} minvalue ${minvalue} start ${start} maxvalue ${maxvalue};]]>
           </SQL>
         </Command>
         <Result>${seq_name} altered!</Result>
@@ -227,6 +225,68 @@ select * from "${schema}"."${object}";
         </Command>
         <Confirm>Really rename sequence ${seq_name}?</Confirm>
         <Result>${seq_name} renamed!</Result>
+      </Action>
+    </ActionGroup>
+    <ActionGroup type="View">
+      <Action id="cockroach-view-drop" label="Drop View" reload="true" icon="remove">
+        <Input label="View" style="text" editable="false">
+          <Default>${view}</Default>
+        </Input>
+        <Input label="Cascade" name="cascade" style="check">
+          <Values>cascade</Values>
+        </Input>
+        <SetVar name="_cascade" value="#cascade.equals('cascade') ? ' cascade' : ''"/>
+        <Command>
+          <SQL>
+            <![CDATA[drop view "${database}"."${view}"${_cascade};]]>
+          </SQL>
+        </Command>
+        <Confirm>Really drop view ${view}?</Confirm>
+        <Result>${view} dropped!</Result>
+      </Action>
+      <Action id="cockroach-view-rename" label="Rename View" reload="true" icon="rename">
+        <Input label="View" style="text" editable="false">
+          <Default>${view}</Default>
+        </Input>
+        <Input label="New Name" name="name" style="text"/>
+        <Command>
+          <SQL>
+            <![CDATA[alter view "${database}"."${view}" rename to "${database}"."${name}";]]>
+          </SQL>
+        </Command>
+        <Confirm>Really rename view ${view}?</Confirm>
+        <Result>${view} renamed!</Result>
+      </Action>
+    </ActionGroup>
+    <ActionGroup type="Column">
+      <Action id="cockroach-column-drop" label="Drop Column" reload="true" icon="remove">
+        <Input label="Column" style="text" editable="false">
+          <Default>${column}</Default>
+        </Input>
+        <Input label="Cascade" name="cascade" style="check">
+          <Values>cascade</Values>
+        </Input>
+        <SetVar name="_cascade" value="#cascade.equals('cascade') ? ' cascade' : ''"/>
+        <Command>
+          <SQL>
+            <![CDATA[alter table "${database}"."${table}" drop column "${column}"${_cascade};]]>
+          </SQL>
+        </Command>
+        <Confirm>Really drop column ${column}?</Confirm>
+        <Result>${column} dropped!</Result>
+      </Action>
+      <Action id="cockroach-column-rename" label="Rename Column" reload="true" icon="rename">
+        <Input label="Column" style="text" editable="false">
+          <Default>${column}</Default>
+        </Input>
+        <Input label="New Name" name="name" style="text"/>
+        <Command>
+          <SQL>
+            <![CDATA[alter table "${database}"."${table}" rename column "${column}" to "${name}";]]>
+          </SQL>
+        </Command>
+        <Confirm>Really rename column ${column}?</Confirm>
+        <Result>${column} renamed!</Result>
       </Action>
     </ActionGroup>
   </ObjectsActionDef>
