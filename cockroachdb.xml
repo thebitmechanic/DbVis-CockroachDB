@@ -392,6 +392,11 @@ select * from "${schema}"."${object}";
           <Input name="database" value="${database}"/>
         </Command>
       </DataView>
+      <DataView id="cockroachdb-tables-references" icon="References" label="References" viewer="tables-refs">
+        <Command idref="cockroachdb.getTables">
+          <Input name="database" value="${database}"/>
+        </Command>
+      </DataView>
     </ObjectView>
     <ObjectView type="Table">
       <DataView id="cockroachdb-table-info" icon="Info" label="Info" viewer="node-form"/>
