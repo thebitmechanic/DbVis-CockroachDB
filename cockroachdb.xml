@@ -30,14 +30,14 @@ select schema_name, catalog_name from information_schema.schemata;
     <Command id="cockroachdb.getVirtualSchemas">
       <SQL>
         <![CDATA[
-select * from information_schema.schemata where catalog_name = '${database}' and schema_name != 'public';
+select * from information_schema.schemata where catalog_name = '${catalog}' and schema_name != 'public';
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getVirtualSchema">
       <SQL>
         <![CDATA[
-select * from information_schema.schemata where catalog_name = '${database}' and schema_name = '${schema_name}';
+select * from information_schema.schemata where catalog_name = '${catalog}' and schema_name = '${schema_name}';
          ]]>
       </SQL>
     </Command>
@@ -51,77 +51,77 @@ show databases;
     <Command id="cockroachdb.getTables">
       <SQL>
         <![CDATA[
-select * from information_schema.tables where table_catalog='${database}' and table_type='BASE TABLE' order by table_name asc;
+select * from information_schema.tables where table_catalog='${catalog}' and table_type='BASE TABLE' order by table_name asc;
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getTableColumns">
       <SQL>
         <![CDATA[
-show columns from ${database}.${table};
+show columns from ${catalog}.${table};
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getTableSource">
       <SQL>
         <![CDATA[
-show create table ${database}.${table};
+show create table ${catalog}.${table};
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getIndexes">
       <SQL>
         <![CDATA[
-show indexes from ${database}.${table};
+show indexes from ${catalog}.${table};
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getViews">
       <SQL>
         <![CDATA[
-select * from information_schema.tables where table_catalog='${database}' and table_type = 'VIEW' order by table_name asc;
+select * from information_schema.tables where table_catalog='${catalog}' and table_type = 'VIEW' order by table_name asc;
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getViewSource">
       <SQL>
         <![CDATA[
-show create view "${database}"."${view}";
+show create view "${catalog}"."${view}";
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getSystemViews">
       <SQL>
         <![CDATA[
-select * from information_schema.tables where table_catalog='${database}' and table_schema='${schema_name}' and table_type like 'SYSTEM VIEW' order by table_name asc;
+select * from information_schema.tables where table_catalog='${catalog}' and table_schema='${schema_name}' and table_type like 'SYSTEM VIEW' order by table_name asc;
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getSequences">
       <SQL>
         <![CDATA[
-select * from information_schema.sequences where sequence_catalog='${database}' order by sequence_name asc;
+select * from information_schema.sequences where sequence_catalog='${catalog}' order by sequence_name asc;
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getSequence">
       <SQL>
         <![CDATA[
-select * from information_schema.sequences where sequence_catalog='${database}' and sequence_name='${sequence}';
+select * from information_schema.sequences where sequence_catalog='${catalog}' and sequence_name='${sequence}';
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getSequenceSource">
       <SQL>
         <![CDATA[
-show create sequence "${database}"."${sequence}";
+show create sequence "${catalog}"."${sequence}";
          ]]>
       </SQL>
     </Command>
     <Command id="cockroachdb.getData">
       <SQL>
         <![CDATA[
-select * from "${database}"."${object}";
+select * from "${catalog}"."${object}";
          ]]>
       </SQL>
     </Command>
@@ -151,7 +151,7 @@ select * from "${schema}"."${object}";
         </Input>
         <Command>
           <SQL>
-            <![CDATA[create sequence "${database}"."${seq_name}" increment ${increment} minvalue ${minvalue} start ${start} maxvalue ${maxvalue};]]>
+            <![CDATA[create sequence "${catalog}"."${seq_name}" increment ${increment} minvalue ${minvalue} start ${start} maxvalue ${maxvalue};]]>
           </SQL>
         </Command>
         <Result>${seq_name} created!</Result>
@@ -165,62 +165,62 @@ select * from "${schema}"."${object}";
         <Input label="Increment" name="increment" style="text">
           <Default column="increment">
             <Command idref="cockroachdb.getSequence">
-              <Input name="database" value="${database}"/>
-              <Input name="sequence" value="${sequence}"/>
+              <Input name="catalog" value="${catalog}"/>
+              <Input name="sequence" value="${objectname}"/>
             </Command>
           </Default>
         </Input>
         <Input label="Minimum Value" name="minvalue" style="text">
           <Default column="minimum_value">
             <Command idref="cockroachdb.getSequence">
-              <Input name="database" value="${database}"/>
-              <Input name="sequence" value="${sequence}"/>
+              <Input name="catalog" value="${catalog}"/>
+              <Input name="sequence" value="${objectname}"/>
             </Command>
           </Default>
         </Input>
         <Input label="Maximum Value" name="maxvalue" style="text">
           <Default column="maximum_value">
             <Command idref="cockroachdb.getSequence">
-              <Input name="database" value="${database}"/>
-              <Input name="sequence" value="${sequence}"/>
+              <Input name="catalog" value="${catalog}"/>
+              <Input name="sequence" value="${objectname}"/>
             </Command>
           </Default>
         </Input>
         <Input label="Start" name="start" style="text">
           <Default column="start_value">
             <Command idref="cockroachdb.getSequence">
-              <Input name="database" value="${database}"/>
-              <Input name="sequence" value="${sequence}"/>
+              <Input name="catalog" value="${catalog}"/>
+              <Input name="sequence" value="${objectname}"/>
             </Command>
           </Default>
         </Input>
         <Command>
           <SQL>
-            <![CDATA[alter sequence "${database}"."${sequence}" increment ${increment} minvalue ${minvalue} start ${start} maxvalue ${maxvalue};]]>
+            <![CDATA[alter sequence "${catalog}"."${objectname}" increment ${increment} minvalue ${minvalue} start ${start} maxvalue ${maxvalue};]]>
           </SQL>
         </Command>
         <Result>${seq_name} altered!</Result>
       </Action>
       <Action id="cockroach-sequence-drop" label="Drop Sequence" reload="true" icon="remove">
         <Input label="Sequence" style="text" editable="false">
-          <Default>${sequence}</Default>
+          <Default>${objectname}</Default>
         </Input>
         <Command>
           <SQL>
-            <![CDATA[drop sequence "${database}"."${sequence}";]]>
+            <![CDATA[drop sequence "${catalog}"."${objectname}";]]>
           </SQL>
         </Command>
-        <Confirm>Really drop sequence ${seq_name}?</Confirm>
-        <Result>${seq_name} dropped!</Result>
+        <Confirm>Really drop sequence ${objectname}?</Confirm>
+        <Result>${objectname} dropped!</Result>
       </Action>
       <Action id="cockroach-sequence-rename" label="Rename Sequence" reload="true" icon="rename">
         <Input label="Sequence" style="text" editable="false">
-          <Default>${sequence}</Default>
+          <Default>${objectname}</Default>
         </Input>
         <Input label="Sequence Name" name="new_name" style="text"/>
         <Command>
           <SQL>
-            <![CDATA[alter sequence "${database}"."${sequence}" rename to "${database}"."${new_name}";]]>
+            <![CDATA[alter sequence "${catalog}"."${objectname}" rename to "${catalog}"."${new_name}";]]>
           </SQL>
         </Command>
         <Confirm>Really rename sequence ${seq_name}?</Confirm>
@@ -230,7 +230,7 @@ select * from "${schema}"."${object}";
     <ActionGroup type="View">
       <Action id="cockroach-view-drop" label="Drop View" reload="true" icon="remove">
         <Input label="View" style="text" editable="false">
-          <Default>${view}</Default>
+          <Default>${objectname}</Default>
         </Input>
         <Input label="Cascade" name="cascade" style="check">
           <Values>cascade</Values>
@@ -238,30 +238,30 @@ select * from "${schema}"."${object}";
         <SetVar name="_cascade" value="#cascade.equals('cascade') ? ' cascade' : ''"/>
         <Command>
           <SQL>
-            <![CDATA[drop view "${database}"."${view}"${_cascade};]]>
+            <![CDATA[drop view "${catalog}"."${objectname}"${_cascade};]]>
           </SQL>
         </Command>
-        <Confirm>Really drop view ${view}?</Confirm>
-        <Result>${view} dropped!</Result>
+        <Confirm>Really drop view ${objectname}?</Confirm>
+        <Result>${objectname} dropped!</Result>
       </Action>
       <Action id="cockroach-view-rename" label="Rename View" reload="true" icon="rename">
         <Input label="View" style="text" editable="false">
-          <Default>${view}</Default>
+          <Default>${objectname}</Default>
         </Input>
         <Input label="New Name" name="name" style="text"/>
         <Command>
           <SQL>
-            <![CDATA[alter view "${database}"."${view}" rename to "${database}"."${name}";]]>
+            <![CDATA[alter view "${catalog}"."${objectname}" rename to "${catalog}"."${name}";]]>
           </SQL>
         </Command>
-        <Confirm>Really rename view ${view}?</Confirm>
-        <Result>${view} renamed!</Result>
+        <Confirm>Really rename view ${objectname}?</Confirm>
+        <Result>${objectname} renamed!</Result>
       </Action>
     </ActionGroup>
     <ActionGroup type="Column">
       <Action id="cockroach-column-drop" label="Drop Column" reload="true" icon="remove">
         <Input label="Column" style="text" editable="false">
-          <Default>${column}</Default>
+          <Default>${objectname}</Default>
         </Input>
         <Input label="Cascade" name="cascade" style="check">
           <Values>cascade</Values>
@@ -269,7 +269,7 @@ select * from "${schema}"."${object}";
         <SetVar name="_cascade" value="#cascade.equals('cascade') ? ' cascade' : ''"/>
         <Command>
           <SQL>
-            <![CDATA[alter table "${database}"."${table}" drop column "${column}"${_cascade};]]>
+            <![CDATA[alter table "${catalog}"."${table}" drop column "${objectname}"${_cascade};]]>
           </SQL>
         </Command>
         <Confirm>Really drop column ${column}?</Confirm>
@@ -277,12 +277,12 @@ select * from "${schema}"."${object}";
       </Action>
       <Action id="cockroach-column-rename" label="Rename Column" reload="true" icon="rename">
         <Input label="Column" style="text" editable="false">
-          <Default>${column}</Default>
+          <Default>${objectname}</Default>
         </Input>
         <Input label="New Name" name="name" style="text"/>
         <Command>
           <SQL>
-            <![CDATA[alter table "${database}"."${table}" rename column "${column}" to "${name}";]]>
+            <![CDATA[alter table "${catalog}"."${table}" rename column "${objectname}" to "${name}";]]>
           </SQL>
         </Command>
         <Confirm>Really rename column ${column}?</Confirm>
@@ -293,56 +293,65 @@ select * from "${schema}"."${object}";
   <ObjectsTreeDef extends="false">
     <GroupNode type="Databases" label="Databases">
       <DataNode type="Database" label="${cockroachdb.getDatabases.database_name}">
-        <SetVar name="database" value="${cockroachdb.getDatabases.database_name}"/>
+        <SetVar name="objectname" value="${cockroachdb.getDatabases.database_name}"/>
+        <SetVar name="catalog" value="${cockroachdb.getDatabases.database_name}"/>
         <Command idref="cockroachdb.getDatabases">
           <Filter index="OBJECT_CAT" label="Name"/>
         </Command>
+
         <GroupNode type="VirtualSchemas" label="Virtual Schemas" icon="Schema">
           <DataNode type="VirtualSchema" label="${cockroachdb.getVirtualSchemas.schema_name}" icon="Schema" isLeaf="false">
+            <SetVar name="objectname" value="${cockroachdb.getVirtualSchemas.schema_name}"/>
             <SetVar name="schema_name" value="${cockroachdb.getVirtualSchemas.schema_name}"/>
             <Command idref="cockroachdb.getVirtualSchemas">
-              <Input name="database" value="${database}"/>
+              <Input name="catalog" value="${catalog}"/>
             </Command>
+
             <GroupNode type="SystemViews" label="System Views" icon="view" isLeaf="false">
               <DataNode type="SystemView" label="${cockroachdb.getSystemViews.table_name}" icon="Views" isLeaf="true">
-                <SetVar name="system_view" value="${cockroachdb.getSystemViews.table_name}"/>
+                <SetVar name="objectname" value="${cockroachdb.getSystemViews.table_name}"/>
                 <Command idref="cockroachdb.getSystemViews">
-                  <Input name="database" value="${database}"/>
+                  <Input name="catalog" value="${catalog}"/>
                   <Input name="schema_name" value="${schema_name}"/>
                 </Command>
               </DataNode>
             </GroupNode>
           </DataNode>
         </GroupNode>
+
         <GroupNode type="Sequences" label="Sequences">
           <DataNode type="Sequence" label="${cockroachdb.getSequences.sequence_name}" isLeaf="true">
-            <SetVar name="sequence" value="${cockroachdb.getSequences.sequence_name}"/>
+            <SetVar name="objectname" value="${cockroachdb.getSequences.sequence_name}"/>
             <Command idref="cockroachdb.getSequences">
-              <Input name="database" value="${database}"/>
+              <Input name="catalog" value="${catalog}"/>
             </Command>
           </DataNode>
         </GroupNode>
+
         <GroupNode type="Tables" label="Tables">
           <DataNode type="Table" label="${cockroachdb.getTables.table_name}" isLeaf="false">
+            <SetVar name="objectname" value="${cockroachdb.getTables.table_name}"/>
             <SetVar name="table" value="${cockroachdb.getTables.table_name}"/>
             <Command idref="cockroachdb.getTables">
-              <Input name="database" value="${database}"/>
+              <Input name="catalog" value="${catalog}"/>
             </Command>
+
             <GroupNode type="Columns" label="Columns">
-              <DataNode type="Column" label="${cockroachdb.getTableColumns.Field} (${cockroachdb.getTableColumns.Type})" isLeaf="true">
-                <SetVar name="column" value="${cockroachdb.getTableColumns.Field}"/>
+              <DataNode type="Column" label="${cockroachdb.getTableColumns.column_name} (${cockroachdb.getTableColumns.data_type})" isLeaf="true">
+                <SetVar name="objectname" value="${cockroachdb.getTableColumns.column_name}"/>
                 <Command idref="cockroachdb.getTableColumns">
-                  <Input name="database" value="${database}"/>
+                  <Input name="catalog" value="${catalog}"/>
                   <Input name="table" value="${table}"/>
                   <Filter index="COLUMN_NAME" label="Name"/>
                 </Command>
               </DataNode>
             </GroupNode>
+
             <GroupNode type="Indexes" label="Indexes">
-              <DataNode type="Index" label="${cockroachdb.getIndexes.Name}" isLeaf="true">
-                <SetVar name="index" value="${cockroachdb.getIndexes.Name}"/>
+              <DataNode type="Index" label="${cockroachdb.getIndexes.index_name}" isLeaf="true">
+                <SetVar name="objectname" value="${cockroachdb.getIndexes.index_name}"/>
                 <Command idref="cockroachdb.getIndexes">
-                  <Input name="database" value="${database}"/>
+                  <Input name="catalog" value="${catalog}"/>
                   <Input name="table" value="${table}"/>
                   <Filter index="INDEX_NAME" label="Name"/>
                 </Command>
@@ -350,12 +359,12 @@ select * from "${schema}"."${object}";
             </GroupNode>
           </DataNode>
         </GroupNode>
+
         <GroupNode type="Views" label="Views">
           <DataNode type="View" label="${cockroachdb.getViews.table_name}" isLeaf="true">
-            <SetVar name="view" value="${cockroachdb.getViews.table_name}"/>
-            <SetVar name="table_type" value="${cockroachdb.getViews.table_type}"/>
+            <SetVar name="objectname" value="${cockroachdb.getViews.table_name}"/>
             <Command idref="cockroachdb.getViews">
-              <Input name="database" value="${database}"/>
+              <Input name="catalog" value="${catalog}"/>
             </Command>
           </DataNode>
         </GroupNode>
@@ -371,7 +380,7 @@ select * from "${schema}"."${object}";
     <ObjectView type="Sequences">
       <DataView id="cockroachdb-sequences" icon="Sequences" label="Sequences" viewer="grid">
         <Command idref="cockroachdb.getSequences">
-          <Input name="database" value="${database}"/>
+          <Input name="catalog" value="${catalog}"/>
         </Command>
       </DataView>
     </ObjectView>
@@ -381,60 +390,55 @@ select * from "${schema}"."${object}";
         <Input name="dataColumn" value="create_statement"/>
         <Input name="formatSQL" value="true"/>
         <Command idref="cockroachdb.getSequenceSource">
-          <Input name="database" value="${database}"/>
-          <Input name="sequence" value="${sequence}"/>
+          <Input name="catalog" value="${catalog}"/>
+          <Input name="sequence" value="${objectname}"/>
         </Command>
       </DataView>
     </ObjectView>
     <ObjectView type="Tables">
       <DataView id="cockroachdb-tables" icon="Tables" label="Tables" viewer="grid">
         <Command idref="cockroachdb.getTables">
-          <Input name="database" value="${database}"/>
+          <Input name="catalog" value="${catalog}"/>
         </Command>
       </DataView>
       <DataView id="cockroachdb-tables-references" icon="References" label="References" viewer="tables-refs">
         <Command idref="cockroachdb.getTables">
-          <Input name="database" value="${database}"/>
+          <Input name="catalog" value="${catalog}"/>
         </Command>
       </DataView>
     </ObjectView>
     <ObjectView type="Table">
       <DataView id="cockroachdb-table-info" icon="Info" label="Info" viewer="node-form"/>
-      <DataView type="cockroachdb-table-data" icon="Data" label="Data" viewer="grid">
-        <Command idref="cockroachdb.getData">
-          <Input name="database" value="${database}"/>
-          <Input name="object" value="${table}"/>
-        </Command>
-      </DataView>
+      <DataView type="cockroachdb-table-data" icon="Data" label="Data" viewer="table-data"/>
       <DataView id="cockroachdb-table-source" icon="Source" label="Source" viewer="text">
         <Input name="dataColumn" value="create_statement"/>
         <Input name="formatSQL" value="true"/>
         <Command idref="cockroachdb.getTableSource">
-          <Input name="database" value="${database}"/>
-          <Input name="table" value="${table}"/>
+          <Input name="catalog" value="${catalog}"/>
+          <Input name="table" value="${objectname}"/>
         </Command>
       </DataView>
     </ObjectView>
     <ObjectView type="Columns">
       <DataView id="cockroachdb-columns" icon="Columns" label="Columns" viewer="grid">
         <Command idref="cockroachdb.getTableColumns">
-          <Input name="database" value="${database}"/>
-          <Input name="table" value="${table}"/>
+          <Input name="catalog" value="${catalog}"/>
+          <Input name="table" value="${objectname}"/>
         </Command>
       </DataView>
     </ObjectView>
     <ObjectView type="Indexes">
       <DataView id="cockroachdb-indexes" icon="Indexes" label="Indexes" viewer="grid">
         <Command idref="cockroachdb.getIndexes">
-          <Input name="database" value="${database}"/>
-          <Input name="table" value="${table}"/>
+          <Input name="catalog" value="${catalog}"/>
+          <Input name="table" value="${objectname}"/>
         </Command>
       </DataView>
     </ObjectView>
     <ObjectView type="Views">
       <DataView id="cockroachdb-views" icon="Views" label="Views" viewer="grid">
         <Command idref="cockroachdb.getViews">
-          <Input name="database" value="${database}"/>
+          <Input name="catalog" value="${catalog}"/>
         </Command>
       </DataView>
     </ObjectView>
@@ -442,30 +446,30 @@ select * from "${schema}"."${object}";
       <DataView id="cockroachdb-view-info" icon="Info" label="Info" viewer="node-form"/>
       <DataView type="cockroachdb-view-data" icon="Data" label="Data" viewer="grid">
         <Command idref="cockroachdb.getData">
-          <Input name="database" value="${database}"/>
-          <Input name="object" value="${view}"/>
+          <Input name="catalog" value="${catalog}"/>
+          <Input name="object" value="${objectname}"/>
         </Command>
       </DataView>
       <DataView id="cockroachdb-view-source" icon="Source" label="Source" viewer="text">
         <Input name="dataColumn" value="create_statement"/>
         <Input name="formatSQL" value="true"/>
         <Command idref="cockroachdb.getViewSource">
-          <Input name="database" value="${database}"/>
-          <Input name="view" value="${view}"/>
+          <Input name="catalog" value="${catalog}"/>
+          <Input name="view" value="${objectname}"/>
         </Command>
       </DataView>
     </ObjectView>
     <ObjectView type="VirtualSchemas">
       <DataView id="cockroachdb-virtual-schemas" icon="Schema" label="Virtual Schemas" viewer="grid">
         <Command idref="cockroachdb.getVirtualSchemas">
-          <Input name="database" value="${database}"/>
+          <Input name="catalog" value="${catalog}"/>
         </Command>
       </DataView>
     </ObjectView>
     <ObjectView type="VirtualSchema">
       <DataView id="cockroachdb-virtual-schema" icon="Schema" label="Virtual Schema" viewer="grid">
         <Command idref="cockroachdb.getVirtualSchema">
-          <Input name="database" value="${database}"/>
+          <Input name="catalog" value="${catalog}"/>
           <Input name="schema_name" value="${schema_name}"/>
         </Command>
       </DataView>
@@ -473,7 +477,7 @@ select * from "${schema}"."${object}";
     <ObjectView type="SystemViews">
       <DataView id="cockroachdb-system-views" icon="Views" label="Views" viewer="grid">
         <Command idref="cockroachdb.getSystemViews">
-          <Input name="database" value="${database}"/>
+          <Input name="catalog" value="${catalog}"/>
           <Input name="schema_name" value="${schema_name}"/>
         </Command>
       </DataView>
@@ -483,7 +487,7 @@ select * from "${schema}"."${object}";
       <DataView type="cockroachdb-systemview-data" icon="Data" label="Data" viewer="grid">
         <Command idref="cockroachdb.getVirtualSchemaData">
           <Input name="schema" value="${schema_name}"/>
-          <Input name="object" value="${system_view}"/>
+          <Input name="object" value="${objectname}"/>
         </Command>
       </DataView>
     </ObjectView>
