@@ -292,8 +292,8 @@ select * from "${schema}"."${object}";
   </ObjectsActionDef>
   <ObjectsTreeDef extends="false">
     <GroupNode type="Databases" label="Databases">
-      <DataNode type="Database" label="${cockroachdb.getDatabases.Database}">
-        <SetVar name="database" value="${cockroachdb.getDatabases.Database}"/>
+      <DataNode type="Database" label="${cockroachdb.getDatabases.database_name}">
+        <SetVar name="database" value="${cockroachdb.getDatabases.database_name}"/>
         <Command idref="cockroachdb.getDatabases">
           <Filter index="OBJECT_CAT" label="Name"/>
         </Command>
