@@ -378,7 +378,7 @@ select * from "${schema}"."${object}";
     <ObjectView type="Sequence">
       <DataView id="cockroachdb-sequence-info" icon="Info" label="Info" viewer="node-form"/>
       <DataView id="cockroachdb-sequence-source" icon="Source" label="Source" viewer="text">
-        <Input name="dataColumn" value="CreateSequence"/>
+        <Input name="dataColumn" value="create_statement"/>
         <Input name="formatSQL" value="true"/>
         <Command idref="cockroachdb.getSequenceSource">
           <Input name="database" value="${database}"/>
@@ -407,7 +407,7 @@ select * from "${schema}"."${object}";
         </Command>
       </DataView>
       <DataView id="cockroachdb-table-source" icon="Source" label="Source" viewer="text">
-        <Input name="dataColumn" value="CreateTable"/>
+        <Input name="dataColumn" value="create_statement"/>
         <Input name="formatSQL" value="true"/>
         <Command idref="cockroachdb.getTableSource">
           <Input name="database" value="${database}"/>
@@ -447,7 +447,7 @@ select * from "${schema}"."${object}";
         </Command>
       </DataView>
       <DataView id="cockroachdb-view-source" icon="Source" label="Source" viewer="text">
-        <Input name="dataColumn" value="CreateView"/>
+        <Input name="dataColumn" value="create_statement"/>
         <Input name="formatSQL" value="true"/>
         <Command idref="cockroachdb.getViewSource">
           <Input name="database" value="${database}"/>
