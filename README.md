@@ -25,7 +25,7 @@ Requirements
 ============
 
 * DbVisualizer Pro (the free version does not support custom profiles) 
-* CockroachDB 2.0
+* CockroachDB 2.1
 
 Installation
 ============
