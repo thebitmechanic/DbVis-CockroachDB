@@ -258,6 +258,37 @@ select * from "${schema}"."${object}";
         <Result>${objectname} renamed!</Result>
       </Action>
     </ActionGroup>
+    <ActionGroup type="Table">
+      <Action id="cockroach-table-drop" label="Drop Table" reload="true" icon="remove">
+        <Input label="Table" style="text" editable="false">
+          <Default>${objectname}</Default>
+        </Input>
+        <Input label="Cascade" name="cascade" style="check">
+          <Values>cascade</Values>
+        </Input>
+        <SetVar name="_cascade" value="#cascade.equals('cascade') ? ' cascade' : ''"/>
+        <Command>
+          <SQL>
+            <![CDATA[drop table "${catalog}"."${objectname}"${_cascade};]]>
+          </SQL>
+        </Command>
+        <Confirm>Really drop table ${objectname}?</Confirm>
+        <Result>${objectname} dropped!</Result>
+      </Action>
+      <Action id="cockroach-table-rename" label="Rename Table" reload="true" icon="rename">
+        <Input label="Table" style="text" editable="false">
+          <Default>${objectname}</Default>
+        </Input>
+        <Input label="New Name" name="name" style="text"/>
+        <Command>
+          <SQL>
+            <![CDATA[alter table "${catalog}"."${objectname}" rename to "${catalog}"."${name}";]]>
+          </SQL>
+        </Command>
+        <Confirm>Really rename table ${objectname}?</Confirm>
+        <Result>${objectname} renamed!</Result>
+      </Action>
+    </ActionGroup>
     <ActionGroup type="Column">
       <Action id="cockroach-column-drop" label="Drop Column" reload="true" icon="remove">
         <Input label="Column" style="text" editable="false">
